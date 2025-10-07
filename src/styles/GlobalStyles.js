@@ -66,7 +66,13 @@ const GlobalStyles = createGlobalStyle`
 
   #root {
     isolation: isolate;
+
     width: 100%;
+    max-width: 100vw;
+    height: 100%;
+
+    overflow-x: hidden;
+    
     display: flex;
     flex-direction: column;
   }
@@ -83,9 +89,6 @@ const GlobalStyles = createGlobalStyle`
     width: 100%;
     max-width: 100vw;
     height: 100vh;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
   }
 
   body:has(.header) {
