@@ -85,12 +85,12 @@ const activeNavItemStyle = css`
 
 export const NavItem = styled.li`
   height: calc(100% - 2px);
-  padding: 0 1rem;
   display: flex;
   align-items: center;
   transition: all 0.3s ease;
 
   a {
+    padding: 0 1rem;
     display: flex;
     align-items: center;
     height: 100%;

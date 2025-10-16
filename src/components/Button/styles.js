@@ -42,5 +42,10 @@ export const StyledButton = styled.button`
     opacity: 0.9;
   }
 
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   ${({ variant }) => getVariantStyles(variant)}
 `;

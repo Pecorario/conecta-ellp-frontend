@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useMatch, useResolvedPath } from 'react-router-dom';
 import * as S from './styles.js';
-import Button from '../Button';
+import Button from '@/components/Button';
+import { useAuth } from '@/hooks/useAuth.js';
 
 function NavItemLink({ to, children, ...props }) {
   let resolved = useResolvedPath(to);
@@ -16,16 +17,12 @@ function NavItemLink({ to, children, ...props }) {
   );
 }
 
-
 function Header() {
-  const user = {
-    name: 'Taynara P.',
-    type: 'admin',
-  };
-
-  const handleLogout = () => {
-    alert('Função de Logout chamada!');
-  };
+  const { user, handleLogout } = useAuth();
+  
+  if (!user) {
+    return null;
+  }
   
   const typesMap = {
     admin: 'Administrador',
