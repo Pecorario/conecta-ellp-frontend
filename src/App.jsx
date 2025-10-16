@@ -4,15 +4,15 @@ import Layout from '@/components/Layout';
 import Loader from '@/components/Loader';
 import LoginPage from '@/pages/Login';
 import RegisterPage from '@/pages/Register';
+import WorkshopsPage from '@/pages/Workshops';
+import UsersPage from '@/pages/Users';
+import WorkshopDetailsPage from '@/pages/WorkshopDetails';
+import CertificatesPage from '@/pages/Certificates';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import GuestRoute from '@/components/GuestRoute';
 import RoleProtectedRoute from '@/components/RoleProtectedRoute';
 import { useAuth } from '@/hooks/useAuth';
 import { useLoading } from '@/hooks/useLoading';
-
-const WorkshopsPage = () => <h1>Página de Oficinas</h1>;
-const UsersPage = () => <h1>Página de Usuários</h1>;
-const CertificatesPage = () => <h1>Página de Certificados</h1>;
 
 function App() {
   const { isSessionLoading } = useAuth();
@@ -27,6 +27,10 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Layout />}>
             <Route index element={<WorkshopsPage />} />
+            
+            <Route element={<RoleProtectedRoute allowedRoles={['admin', 'teacher', 'tutor']} />}>
+              <Route path="workshops/:id" element={<WorkshopDetailsPage />} />
+            </Route>
             
             <Route element={<RoleProtectedRoute allowedRoles={['admin', 'teacher']} />}>
               <Route path="users" element={<UsersPage />} />
