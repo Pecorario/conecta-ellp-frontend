@@ -1,9 +1,9 @@
 import React from 'react';
 import * as S from './styles.js';
 
-function Button({ children, variant, ...props }) {
+function Button({ children, variant, type = 'submit', ...props }) {
   return (
-    <S.StyledButton variant={variant} {...props}>
+    <S.StyledButton variant={variant} type={type} {...props}>
       {children}
     </S.StyledButton>
   );

@@ -7,7 +7,7 @@ import RegisterPage from '@/pages/Register';
 import WorkshopsPage from '@/pages/Workshops';
 import UsersPage from '@/pages/Users';
 import WorkshopDetailsPage from '@/pages/WorkshopDetails';
-import CertificatesPage from '@/pages/Certificates';
+import DocumentsPage from '@/pages/Documents';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import GuestRoute from '@/components/GuestRoute';
 import RoleProtectedRoute from '@/components/RoleProtectedRoute';
@@ -34,7 +34,7 @@ function App() {
             
             <Route element={<RoleProtectedRoute allowedRoles={['admin', 'teacher']} />}>
               <Route path="users" element={<UsersPage />} />
-              <Route path="certificados" element={<CertificatesPage />} />
+              <Route path="documents" element={<DocumentsPage />} />
             </Route>
 
           </Route>

@@ -51,3 +51,9 @@ export const FormRow = styled.div`
     }
   }
 `;
+
+export const ErrorMessage = styled.p`
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: -0.75rem; 
+`;

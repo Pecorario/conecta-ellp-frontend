@@ -57,7 +57,7 @@ function Header() {
           {(user.type === 'teacher' || user.type === 'admin') && (
             <>
               <NavItemLink to="/users">Usuários</NavItemLink>
-              <NavItemLink to="/certificados">Certificados</NavItemLink>
+              <NavItemLink to="/documents">Documentos</NavItemLink>
             </>
           )}
 
