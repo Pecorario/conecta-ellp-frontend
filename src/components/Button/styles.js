@@ -1,42 +1,58 @@
 import styled, { css } from 'styled-components';
 
-const getVariantStyles = (variant = 'primary') => {
+const colors = {
+  primary: '#2563EB',
+  secondary: '#16A34A',
+  tertiary: '#DC2626',
+  quaternary: '#8024D1',
+  text: '#FFF'
+};
+
+const getVariantStyles = (variant) => {
   switch (variant) {
-    case 'secondary':
-      return css`
-        background-color: #16A34A;
-      `;
+    case 'danger':
     case 'tertiary':
       return css`
-        background-color: #DC2626;
-        padding: 0.5rem 1rem;
+        background-color: ${colors.tertiary};
+        color: ${colors.text};
         font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+      `;
+    case 'secondary':
+      return css`
+        background-color: ${colors.secondary};
+        color: ${colors.text};
       `;
     case 'quaternary':
       return css`
-        background-color: #8024D1;
-        width: 100%;
+        background-color: ${colors.quaternary};
+        color: ${colors.text};
+        width: 100%; 
         font-weight: 600;
       `;
     case 'primary':
     default:
       return css`
-        background-color: #2563EB;
+        background-color: ${colors.primary};
+        color: ${colors.text};
       `;
   }
 };
 
 export const StyledButton = styled.button`
   border: none;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
   text-align: center;
   cursor: pointer;
-  color: white;
   opacity: 1;
-  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 
   &:hover {
     opacity: 0.9;

@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import api from '@/services/api.js';
 import Button from '@/components/Button';
 import { useLoading } from '@/hooks/useLoading.js';
+import Select from 'react-select';
+import { darkSelectStyles } from '@/styles/selectStyles.js';
 import * as S from './styles.js';
+import { toast } from 'react-toastify';
 
 function DocumentsPage() {
-  const [volunteers, setVolunteers] = useState([]);
+  const [volunteerOptions, setVolunteerOptions] = useState([]);
   const [selectedVolunteers, setSelectedVolunteers] = useState([]);
   const [error, setError] = useState('');
-  const { showLoader, hideLoader } = useLoading();
+  const { isLoading, showLoader, hideLoader } = useLoading();
 
   useEffect(() => {
     async function fetchVolunteers() {
@@ -18,7 +21,13 @@ function DocumentsPage() {
         const filteredVolunteers = response.data.filter(
           user => user.type === 'teacher' || user.type === 'tutor'
         );
-        setVolunteers(filteredVolunteers);
+        
+        const options = filteredVolunteers.map(user => ({
+          value: user._id,
+          label: `${user.name} (${user.type})`
+        }));
+        setVolunteerOptions(options);
+
       } catch (err) {
         setError('Não foi possível carregar a lista de voluntários.');
         console.error('Erro ao buscar voluntários:', err);
@@ -29,26 +38,20 @@ function DocumentsPage() {
     fetchVolunteers();
   }, [showLoader, hideLoader]);
 
-  const handleCheckboxChange = (volunteerId) => {
-    setSelectedVolunteers(currentSelected =>
-      currentSelected.includes(volunteerId)
-        ? currentSelected.filter(id => id !== volunteerId)
-        : [...currentSelected, volunteerId]
-    );
-  };
-
   const handleGenerateDocuments = async () => {
     if (selectedVolunteers.length === 0) {
-      alert('Por favor, selecione pelo menos um voluntário.');
+      toast.warn('Por favor, selecione pelo menos um voluntário.');
       return;
     }
 
     showLoader();
     try {
+      const userIds = selectedVolunteers.map(option => option.value);
+
       const response = await api.post('/documents/volunteer-agreements', {
-        userIds: selectedVolunteers
+        userIds: userIds
       }, {
-        responseType: 'blob', // Importante: informa ao axios para tratar a resposta como um arquivo
+        responseType: 'blob',
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -59,10 +62,11 @@ function DocumentsPage() {
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
+      toast.success('Documentos gerados com sucesso!');
 
     } catch (err) {
       console.error('Erro ao gerar documentos:', err);
-      alert('Ocorreu um erro ao gerar os documentos.');
+      toast.error('Ocorreu um erro ao gerar os documentos.');
     } finally {
       hideLoader();
     }
@@ -71,46 +75,56 @@ function DocumentsPage() {
   if (error) {
     return (
       <S.ScreenContainer>
-        <p style={{ color: '#ef4444' }}>{error}</p>
+        <p style={{ color: '#ef4444', padding: '2rem' }}>{error}</p>
       </S.ScreenContainer>
     );
   }
 
   return (
     <S.ScreenContainer>
-      <S.ScreenTitle>
-        <h1>Gerar Documentos</h1>
-      </S.ScreenTitle>
+      <S.FixedSection>
+        <S.ScreenTitle>
+          <h1>Gerar Documentos</h1>
+        </S.ScreenTitle>
+      </S.FixedSection>
 
-      <S.ContentContainer>
-        <S.SectionTitle>Termo de Voluntariado</S.SectionTitle>
-        <p style={{ color: '#94A3B8', marginTop: '-1rem' }}>
-          Selecione os professores e/ou tutores para gerar os termos de adesão.
-        </p>
-        <S.VolunteerList>
-          {volunteers.map(volunteer => (
-            <S.VolunteerListItem key={volunteer._id}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={selectedVolunteers.includes(volunteer._id)}
-                  onChange={() => handleCheckboxChange(volunteer._id)}
-                />
-                {volunteer.name} ({volunteer.type})
-              </label>
-            </S.VolunteerListItem>
-          ))}
-        </S.VolunteerList>
-        <S.ActionsContainer>
-          <Button
-            variant="secondary"
-            onClick={handleGenerateDocuments}
-            disabled={selectedVolunteers.length === 0}
-          >
-            Gerar Termos
-          </Button>
-        </S.ActionsContainer>
-      </S.ContentContainer>
+      <S.ScrollableContent>
+        <S.ContentContainer>
+          <S.SectionTitle>Termo de Voluntariado</S.SectionTitle>
+          <p style={{ color: '#94A3B8', marginTop: '-1rem' }}>
+            Selecione os professores e/ou tutores para gerar os termos de adesão.
+          </p>
+          
+          {!isLoading && volunteerOptions.length === 0 ? (
+            <p style={{ color: '#94A3B8', textAlign: 'center', padding: '1rem 0' }}>
+              Nenhum voluntário (professor ou tutor) encontrado no sistema.
+            </p>
+          ) : (
+            <>
+              <Select
+                isMulti
+                options={volunteerOptions}
+                value={selectedVolunteers}
+                onChange={setSelectedVolunteers}
+                styles={darkSelectStyles}
+                placeholder="Selecione os voluntários..."
+                noOptionsMessage={() => 'Nenhum voluntário encontrado'}
+                menuPortalTarget={document.body}
+              />
+
+              <S.ActionsContainer>
+                <Button
+                  variant="secondary"
+                  onClick={handleGenerateDocuments}
+                  disabled={selectedVolunteers.length === 0}
+                >
+                  Gerar Termos
+                </Button>
+              </S.ActionsContainer>
+            </>
+          )}
+        </S.ContentContainer>
+      </S.ScrollableContent>
     </S.ScreenContainer>
   );
 }

@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import api from '@/services/api.js';
 import { useLoading } from '@/hooks/useLoading.js';
+import { darkSelectStyles } from '@/styles/selectStyles.js';
+
+import api from '@/services/api.js';
+
 import Button from '@/components/Button';
 import Modal from '@/components/Modal';
+import Select from 'react-select';
+
 import * as S from './styles.js';
 
 function EnrollStudentModal({ isOpen, handleClose, workshop, onEnrollSuccess }) {
@@ -19,14 +24,15 @@ function EnrollStudentModal({ isOpen, handleClose, workshop, onEnrollSuccess }) 
           const usersResponse = await api.get('/users');
           
           const enrolledIds = workshop.enrolledStudents.map(student => student._id);
-          const students = usersResponse.data.filter(user => 
-            user.type === 'student' && !enrolledIds.includes(user._id)
-          );
+          const students = usersResponse.data
+            .filter(user => user.type === 'student' && !enrolledIds.includes(user._id))
+            .map(user => ({ 
+              value: user._id,
+              label: user.name
+            }));
           
           setAvailableStudents(students);
-          if (students.length > 0) {
-            setSelectedStudentId(students[0]._id);
-          }
+          setSelectedStudentId('');
         } catch (err) {
           setError('Não foi possível carregar a lista de alunos.');
         } finally {
@@ -48,8 +54,8 @@ function EnrollStudentModal({ isOpen, handleClose, workshop, onEnrollSuccess }) 
     setError('');
     try {
       const response = await api.post(`/workshops/${workshop._id}/enroll`, { studentId: selectedStudentId });
-      onEnrollSuccess(response.data); 
-      handleClose(); 
+      onEnrollSuccess(response.data);
+      handleClose();
     } catch (err) {
       setError(err.response?.data?.message || 'Erro ao inscrever aluno.');
     } finally {
@@ -60,36 +66,37 @@ function EnrollStudentModal({ isOpen, handleClose, workshop, onEnrollSuccess }) 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose}>
       <S.FormContainer onSubmit={handleSubmit}>
-        <S.ModalTitle>Inscrever Aluno</S.ModalTitle>
+        <S.ModalHeader>
+          <S.ModalTitle>Inscrever Aluno</S.ModalTitle>
+        </S.ModalHeader>
         
-        <S.FormRow>
-          <label htmlFor="student-select">Selecione o Aluno</label>
-          <select
-            id="student-select"
-            value={selectedStudentId}
-            onChange={(e) => setSelectedStudentId(e.target.value)}
+        <S.ScrollableContent>
+          <S.FormRow>
+            <label htmlFor="student-select">Selecione o Aluno</label>
+            <Select
+              id="student-select"
+              options={availableStudents}
+              styles={darkSelectStyles}
+              value={availableStudents.find(option => option.value === selectedStudentId)}
+              onChange={(selectedOption) => setSelectedStudentId(selectedOption.value)}
+              menuPortalTarget={document.body}
+              placeholder="Selecione o aluno..."
+              noOptionsMessage={() => 'Nenhum aluno disponível'}
+            />
+          </S.FormRow>
+
+          {error && <S.ErrorMessage>{error}</S.ErrorMessage>}
+        </S.ScrollableContent>
+
+        <S.ModalFooter>
+          <Button 
+            variant="secondary" 
+            type="submit" 
+            disabled={isLoading || availableStudents.length === 0}
           >
-            {availableStudents.length > 0 ? (
-              availableStudents.map(student => (
-                <option key={student._id} value={student._id}>
-                  {student.name}
-                </option>
-              ))
-            ) : (
-              <option disabled>Nenhum aluno disponível para inscrição</option>
-            )}
-          </select>
-        </S.FormRow>
-
-        {error && <p style={{ color: '#ef4444', textAlign: 'center' }}>{error}</p>}
-
-        <Button 
-          variant="secondary" 
-          type="submit" 
-          disabled={isLoading || availableStudents.length === 0}
-        >
-          Inscrever Aluno
-        </Button>
+            Inscrever Aluno
+          </Button>
+        </S.ModalFooter>
       </S.FormContainer>
     </Modal>
   );

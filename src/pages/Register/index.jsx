@@ -1,40 +1,58 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import api from '@/services/api.js';
+import { useAuth } from '@/hooks/useAuth.js';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '@/components/Button';
+import { toast } from 'react-toastify';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import * as S from './styles.js';
 
 function RegisterPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    age: '',
-    password: ''
-  });
-  const [error, setError] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [age, setAge] = useState('');
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const { handleLogin } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+    if (password !== confirmPassword) {
+      setError('As senhas não conferem.');
+      toast.error('As senhas não conferem.');
+      return;
+    }
+
     if (isLoading) return;
-
-    setError('');
+    
     setIsLoading(true);
+    setError('');
 
     try {
-      await api.post('/auth/register', formData);
-      navigate('/login'); 
+      await api.post('/auth/register', {
+        name,
+        email,
+        password,
+        age: Number(age),
+        type: 'student'
+      });
+      
+      toast.success('Conta criada com sucesso! Entrando...');
+      await handleLogin({ email, password });
+      navigate('/');
+      
     } catch (err) {
-      setError(err.response?.data?.message || 'Erro ao criar conta.');
+      const message = err.response?.data?.message || err.message || 'Erro ao criar conta.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -46,77 +64,96 @@ function RegisterPage() {
         <S.FormHeader>
           <img src="/images/logo.svg" alt="Logo" />
           <h1>ConectaELLP</h1>
-          <p>Plataforma de Ensino Lúdico</p>
+          <p>Crie sua conta de aluno</p>
         </S.FormHeader>
 
         <S.Form onSubmit={handleSubmit}>
-          <S.FormRow>
-            <label htmlFor="name">Nome completo</label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              placeholder="Seu nome completo"
-              required
-              value={formData.name}
-              onChange={handleChange}
-            />
-          </S.FormRow>
+          <S.ScrollableInputs>
+            <S.FormRow>
+              <label htmlFor="name">Nome Completo</label>
+              <input
+                type="text"
+                id="name"
+                placeholder="Seu nome"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </S.FormRow>
 
-          <S.FormRow>
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              placeholder="seu@email.com"
-              required
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </S.FormRow>
+            <S.FormRow>
+              <label htmlFor="email">E-mail</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </S.FormRow>
 
-          <S.FormRow>
-            <label htmlFor="age">Idade</label>
-            <input
-              type="number"
-              name="age"
-              id="age"
-              placeholder="Sua idade"
-              required
-              value={formData.age}
-              onChange={handleChange}
-            />
-          </S.FormRow>
+            <S.FormRow>
+              <label htmlFor="age">Idade</label>
+              <input
+                type="number"
+                id="age"
+                placeholder="Sua idade"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                required
+              />
+            </S.FormRow>
 
-          <S.FormRow>
-            <label htmlFor="password">Senha</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="••••••••"
-              minLength="4"
-              required
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </S.FormRow>
+            <S.FormRow>
+              <label htmlFor="password">Senha</label>
+              <S.PasswordWrapper>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  minLength="4"
+                  required
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} tabIndex="-1">
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </S.PasswordWrapper>
+            </S.FormRow>
 
-          {error && <p style={{ color: '#ef4444', textAlign: 'center' }}>{error}</p>}
+            <S.FormRow>
+              <label htmlFor="confirmPassword">Repetir Senha</label>
+              <S.PasswordWrapper>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  minLength="4"
+                  required
+                />
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} tabIndex="-1">
+                  {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </S.PasswordWrapper>
+            </S.FormRow>
 
-          <Button
-            variant="secondary"
-            type="submit"
-            disabled={isLoading}
-          >
-            Cadastrar como aluno
-          </Button>
+            {error && <p style={{ color: '#ef4444', textAlign: 'center' }}>{error}</p>}
+          </S.ScrollableInputs>
+
+          <S.FormFooter>
+            <Button variant="primary" type="submit" disabled={isLoading}>
+              {isLoading ? 'Criando...' : 'Cadastrar'}
+            </Button>
+
+            <S.FormSpan>
+              Já tem uma conta? <Link to="/login">Fazer Login</Link>
+            </S.FormSpan>
+          </S.FormFooter>
         </S.Form>
-
-        <S.FormSpan>
-          Já tem uma conta? <Link to="/login">Entrar</Link>
-        </S.FormSpan>
       </S.FormSection>
     </S.MainContainer>
   );

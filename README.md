@@ -1,16 +1,77 @@
-# React + Vite
+# ConectaELLP
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+O **ConectaELLP** é uma plataforma web desenvolvida para gerenciar oficinas, inscrições de alunos, presença e gestão de voluntários (professores e tutores) do projeto de extensão ELLP.
 
-Currently, two official plugins are available:
+Esta documentação cobre a estrutura, instalação e funcionamento do cliente web.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tecnologias Utilizadas
 
-## React Compiler
+O projeto foi construído utilizando uma stack moderna baseada em **React** e **Vite**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Core
 
-## Expanding the ESLint configuration
+  * **[React](https://reactjs.org/)**: Biblioteca principal para construção da interface.
+  * **[Vite](https://vitejs.dev/)**: Build tool e servidor de desenvolvimento rápido.
+  * **[React Router DOM](https://reactrouter.com/)**: Gerenciamento de rotas e navegação.
+  * **[Axios](https://axios-http.com/)**: Cliente HTTP para comunicação com a API.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### UI & Estilização
+
+  * **[Styled-components](https://styled-components.com/)**: CSS-in-JS para estilização de componentes com suporte a temas e props dinâmicas.
+  * **[React Icons](https://react-icons.github.io/react-icons/)**: Biblioteca de ícones (FontAwesome, HeroIcons, etc.).
+  * **[Radix UI (Dropdown Menu)](https://www.radix-ui.com/)**: Componentes acessíveis e sem estilo (headless) para o menu de ações.
+
+### Formulários e Interatividade
+
+  * **[React Select](https://react-select.com/)**: Componente poderoso para select/dropdowns e multiseleção.
+  * **[React Toastify](https://fkhadra.github.io/react-toastify/)**: Notificações flutuantes (Toasts) para feedback ao usuário.
+  * **[Flatpickr](https://flatpickr.js.org/)**: Seletor de data e hora amigável.
+  * **[IMask](https://imask.js.org/)**: Máscaras de input (CPF, Telefone).
+
+## Instalação e Execução
+
+### Pré-requisitos
+
+  * Node.js (v18 ou superior)
+  * NPM ou Yarn
+
+### Passos
+
+1.  Clone o repositório:
+
+    ```bash
+    git clone https://github.com/utfpr-cp-materias/conecta-ellp-frontend.git
+    cd conecta-ellp-frontend
+    ```
+
+2.  Instale as dependências:
+
+    ```bash
+    npm install
+    ```
+
+3.  Configure as variáveis de ambiente:
+    Crie um arquivo `.env` na raiz do projeto:
+
+    ```env
+    VITE_API_URL=
+    ```
+
+4.  Inicie o servidor de desenvolvimento:
+
+    ```bash
+    npm run dev
+    ```
+
+## Controle de Acesso 
+
+O sistema implementa rotas protegidas baseadas em roles:
+
+| Role | Oficinas | Detalhes Oficina | Usuários | Documentos | Perfil |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Admin** | Full | Full | Full | Full | Full |
+| **Teacher** | Full | Full | Full | Full | Full |
+| **Tutor** | View | View/Chamada | - | - | Full |
+| **Student** | View/Inscrever | - | - | - | Full |
+
+*Componente `RoleProtectedRoute` gerencia esses acessos.*

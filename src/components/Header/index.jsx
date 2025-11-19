@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useMatch, useResolvedPath } from 'react-router-dom';
-import * as S from './styles.js';
-import Button from '@/components/Button';
 import { useAuth } from '@/hooks/useAuth.js';
+
+import Button from '@/components/Button';
+
+import * as S from './styles.js';
 
 function NavItemLink({ to, children, ...props }) {
   let resolved = useResolvedPath(to);
@@ -60,6 +62,8 @@ function Header() {
               <NavItemLink to="/documents">Documentos</NavItemLink>
             </>
           )}
+
+          <NavItemLink to="/profile">Meu Perfil</NavItemLink>
 
         </S.NavList>
       </S.NavContainer>

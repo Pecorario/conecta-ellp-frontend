@@ -4,7 +4,10 @@ import {
   FormHeader,
   Form,
   FormRow,
-  FormSpan
+  FormSpan,
+  PasswordWrapper,
+  FormFooter,
+  ScrollableInputs
 } from '../Login/styles.js';
 
 export {
@@ -13,5 +16,8 @@ export {
   FormHeader,
   Form,
   FormRow,
-  FormSpan
+  FormSpan,
+  PasswordWrapper,
+  FormFooter,
+  ScrollableInputs
 };

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import api from '@/services/api.js';
 import { useLoading } from '@/hooks/useLoading.js';
 
@@ -11,9 +11,17 @@ function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
 
+  const handleLogout = useCallback(() => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('@ConectaELLP:token');
+    delete api.defaults.headers.common['Authorization'];
+  }, []);
+
   useEffect(() => {
     async function loadStoragedData() {
       const storagedToken = localStorage.getItem('@ConectaELLP:token');
+      
       if (storagedToken) {
         try {
           api.defaults.headers.common['Authorization'] = `Bearer ${storagedToken}`;
@@ -21,14 +29,16 @@ function AuthProvider({ children }) {
           setUser(response.data);
           setToken(storagedToken);
         } catch (error) {
-          console.error("Token armazenado inválido, limpando...", error);
-          localStorage.removeItem('@ConectaELLP:token');
+          console.error("Token armazenado inválido ou expirado.", error);
+          handleLogout();
         }
       }
+      
       setIsSessionLoading(false);
     }
+    
     loadStoragedData();
-  }, []);
+  }, [handleLogout]);
 
   async function handleLogin({ email, password }) {
     showLoader();
@@ -49,17 +59,22 @@ function AuthProvider({ children }) {
     }
   }
 
-  function handleLogout() {
-    showLoader();
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('@ConectaELLP:token');
-    api.defaults.headers.common['Authorization'] = null;
-    hideLoader();
+  function handleUpdateUser(updatedUserData) {
+    setUser(prevUser => ({
+      ...prevUser,
+      ...updatedUserData
+    }));
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, isSessionLoading, handleLogin, handleLogout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      isSessionLoading, 
+      handleLogin, 
+      handleLogout,
+      handleUpdateUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );

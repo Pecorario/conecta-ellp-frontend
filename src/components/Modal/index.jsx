@@ -1,4 +1,5 @@
 import React from 'react';
+
 import * as S from './styles.js';
 
 function Modal({ isOpen, handleClose, children }) {
@@ -15,7 +16,7 @@ function Modal({ isOpen, handleClose, children }) {
   return (
     <S.ModalOverlay onClick={handleOverlayClick}>
       <S.ModalContent>
-        <S.CloseButton onClick={handleClose}>
+        <S.CloseButton onClick={handleClose} title="Fechar">
           &times;
         </S.CloseButton>
         {children}
